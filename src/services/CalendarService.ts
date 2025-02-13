@@ -27,15 +27,22 @@ export class CalendarService {
 	private static hasValidToken = false;
 
 	static async initClient() {
-		console.log("Starting Google Calendar API initialization...");
-
 		if (this.isInitialized) {
 			console.log("Already initialized");
 			return true;
 		}
 
 		try {
-			// First, load the Google Identity Services script
+			console.log("Starting Google Calendar API initialization...");
+
+			// Log API key and client ID
+			console.log("Using API Key:", import.meta.env.VITE_GOOGLE_API_KEY);
+			console.log(
+				"Using Client ID:",
+				import.meta.env.VITE_GOOGLE_CLIENT_ID
+			);
+
+			// Load Google Identity Services script
 			await new Promise<void>((resolve, reject) => {
 				const script = document.createElement("script");
 				script.src = "https://accounts.google.com/gsi/client";
@@ -46,9 +53,7 @@ export class CalendarService {
 				document.head.appendChild(script);
 			});
 
-			console.log("Google Identity Services script loaded");
-
-			// Then load the GAPI script
+			// Load GAPI script
 			await new Promise<void>((resolve, reject) => {
 				const script = document.createElement("script");
 				script.src = "https://apis.google.com/js/api.js";
@@ -59,16 +64,12 @@ export class CalendarService {
 				document.head.appendChild(script);
 			});
 
-			console.log("Google API script loaded");
-
-			// Load the GAPI client
+			// Load GAPI client
 			await new Promise<void>((resolve) => {
 				window.gapi.load("client", resolve);
 			});
 
-			console.log("GAPI client loaded");
-
-			// Initialize the GAPI client
+			// Initialize GAPI client
 			await window.gapi.client.init({
 				apiKey: import.meta.env.VITE_GOOGLE_API_KEY,
 				discoveryDocs: [
@@ -78,7 +79,7 @@ export class CalendarService {
 
 			console.log("GAPI client initialized");
 
-			// Initialize the token client
+			// Initialize token client
 			this.tokenClient = window.google.accounts.oauth2.initTokenClient({
 				client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
 				scope: "https://www.googleapis.com/auth/calendar.events",
@@ -92,7 +93,7 @@ export class CalendarService {
 			return true;
 		} catch (error) {
 			console.error("Error initializing Google Calendar API:", error);
-			throw error;
+			throw error; // Rethrow the error for further handling
 		}
 	}
 
