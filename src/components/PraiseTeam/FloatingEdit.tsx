@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./FloatingEdit.module.css";
 import { PraiseTeamService } from "../../../Backend/FirebaseServices";
 
@@ -19,6 +19,18 @@ interface FloatingEditProps {
 			name: string;
 		}[];
 	};
+}
+
+interface Conflict {
+	type: "SAME_PERSON" | "ROLE_CONFLICT";
+	message: string;
+	severity: "WARNING" | "ERROR";
+}
+
+interface Conflict {
+	type: "SAME_PERSON" | "ROLE_CONFLICT";
+	message: string;
+	severity: "WARNING" | "ERROR";
 }
 
 const DEFAULT_ROLES = [
@@ -49,6 +61,7 @@ const FloatingEdit = ({
 			{}
 		)
 	);
+	const [conflicts, setConflicts] = useState<Conflict[]>([]);
 
 	useEffect(() => {
 		const fetchMembers = async () => {
@@ -88,6 +101,39 @@ const FloatingEdit = ({
 		}
 	};
 
+	const handleMemberSelect = (role: string, name: string) => {
+		if (!name) {
+			setConflicts([]);
+			setSelectedMembers((prev) => ({
+				...prev,
+				[role]: name,
+			}));
+			return;
+		}
+
+		// Check for conflicts
+		const newConflicts: Conflict[] = [];
+
+		// Check if person is already assigned to another role
+		const existingRole = Object.entries(selectedMembers).find(
+			([r, n]) => n === name && r !== role
+		);
+
+		if (existingRole) {
+			newConflicts.push({
+				type: "SAME_PERSON",
+				message: `${name} is already assigned as ${existingRole[0]}`,
+				severity: "ERROR",
+			});
+		}
+
+		setConflicts(newConflicts);
+		setSelectedMembers((prev) => ({
+			...prev,
+			[role]: name,
+		}));
+	};
+
 	const members =
 		monthData.members?.length > 0 ? monthData.members : DEFAULT_ROLES;
 
@@ -110,12 +156,12 @@ const FloatingEdit = ({
 							<select
 								className={styles.memberSelect}
 								value={selectedMembers[member.role] || ""}
-								onChange={(e) => {
-									setSelectedMembers((prev) => ({
-										...prev,
-										[member.role]: e.target.value,
-									}));
-								}}
+								onChange={(e) =>
+									handleMemberSelect(
+										member.role,
+										e.target.value
+									)
+								}
 							>
 								<option value=''>Select member</option>
 								{getMembersForRole(member.role).map(
@@ -132,11 +178,29 @@ const FloatingEdit = ({
 						</div>
 					))}
 				</div>
+				{conflicts.length > 0 && (
+					<div className={styles.conflictWarnings}>
+						{conflicts.map((conflict, index) => (
+							<div
+								key={index}
+								className={`${styles.conflictMessage} ${
+									styles[conflict.severity.toLowerCase()]
+								}`}
+							>
+								⚠️ {conflict.message}
+							</div>
+						))}
+					</div>
+				)}
 				<div className={styles.footer}>
 					<button onClick={onClose} className={styles.cancelButton}>
 						Cancel
 					</button>
-					<button className={styles.saveButton} onClick={handleSave}>
+					<button
+						className={styles.saveButton}
+						disabled={conflicts.some((c) => c.severity === "ERROR")}
+						onClick={handleSave}
+					>
 						Save Changes
 					</button>
 				</div>

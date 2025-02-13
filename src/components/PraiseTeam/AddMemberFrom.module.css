@@ -3,16 +3,17 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background-color: #2d2e32;
+	background-color: #0d0d0d;
 	padding: 2rem;
 	border-radius: 12px;
 	width: 90%;
 	max-width: 500px;
 	max-height: 90vh;
 	overflow-y: auto;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 	z-index: 1001;
 	animation: fadeIn 0.3s ease-in-out;
+	border: 1px solid #1a1a1a;
 }
 
 @keyframes fadeIn {
@@ -40,17 +41,17 @@
 .formGroup label {
 	display: block;
 	margin-bottom: 0.5rem;
-	color: #a0aec0;
+	color: #f5a9b8;
 	font-weight: 500;
 }
 
 .formGroup input[type="text"] {
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #4a5568;
+	border: 1px solid #1a1a1a;
 	border-radius: 6px;
-	background-color: #1a1b1e;
-	color: #ffffff;
+	background-color: #000000;
+	color: #f5f5f5;
 }
 
 .checkboxGroup {
@@ -63,7 +64,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #ffffff;
+	color: #f5f5f5;
 	cursor: pointer;
 }
 
@@ -79,10 +80,10 @@
 .datePicker {
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #4a5568;
+	border: 1px solid #1a1a1a;
 	border-radius: 6px;
-	background-color: #1a1b1e;
-	color: #ffffff;
+	background-color: #000000;
+	color: #f5f5f5;
 }
 
 .datesList {
@@ -96,9 +97,9 @@
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.25rem 0.5rem;
-	background-color: #4a5568;
+	background-color: #f5a9b8;
 	border-radius: 4px;
-	color: #ffffff;
+	color: #000000;
 }
 
 .dateTag button {
@@ -128,21 +129,21 @@
 }
 
 .submitButton {
-	background-color: #4299e1;
-	color: #ffffff;
+	background-color: #f5a9b8;
+	color: #000000;
 }
 
 .submitButton:hover {
-	background-color: #3182ce;
+	background-color: #f091a4;
 }
 
 .cancelButton {
-	background-color: #4a5568;
-	color: #ffffff;
+	background-color: #1a1a1a;
+	color: #f5f5f5;
 }
 
 .cancelButton:hover {
-	background-color: #2d3748;
+	background-color: #2a2a2a;
 }
 
 .formGroup input.error {

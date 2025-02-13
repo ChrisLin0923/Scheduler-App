@@ -4,8 +4,8 @@
 	padding: 1rem 2rem;
 	display: flex;
 	flex-direction: column;
-	background-color: #1a1b1e;
-	color: #ffffff;
+	background-color: #000000;
+	color: #f5f5f5;
 	overflow: hidden;
 	-webkit-overflow-scrolling: touch;
 }
@@ -15,18 +15,19 @@
 	gap: 1.25rem;
 	align-items: center;
 	padding: 0.5rem 0;
+	border-bottom: 1px solid #1a1a1a;
 }
 
 .navToggle {
 	padding: 0.5rem 1rem;
 	border-radius: 8px;
-	background-color: #4a5568;
+	background-color: #1a1a1a;
 	border: none;
 	color: white;
 }
 
 .navToggle:hover {
-	background-color: #5a6577;
+	background-color: #2a2a2a;
 }
 
 .searchBar,
@@ -34,11 +35,11 @@
 .userSelect {
 	appearance: none;
 	padding: 0.75rem 1.25rem;
-	border: 1px solid #2d2e32;
+	border: 1px solid #1a1a1a;
 	border-radius: 10px;
-	background: #25262b;
+	background: #0d0d0d;
 	font-size: 0.95rem;
-	color: #ffffff;
+	color: #f5f5f5;
 	width: 250px;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -52,8 +53,8 @@
 .monthSelector:focus,
 .userSelect:focus {
 	outline: none;
-	border-color: #4a5568;
-	box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.2);
+	border-color: #f5a9b8;
+	box-shadow: 0 0 0 3px rgba(245, 169, 184, 0.1);
 }
 
 .unlockButton,
@@ -70,15 +71,15 @@
 }
 
 .unlockButton {
-	background-color: #25262b;
-	color: #ffffff;
-	border: 1px solid #2d2e32;
+	background-color: #1a1a1a;
+	color: #f5f5f5;
+	border: 1px solid #2a2a2a;
 }
 
 .addButton,
 .calendarButton {
-	background-color: #4a5568;
-	color: white;
+	background-color: #f5a9b8;
+	color: #000000;
 }
 
 .unlockButton:hover,
@@ -86,7 +87,7 @@
 .calendarButton:hover {
 	transform: translateY(-1px);
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-	background-color: #5a6577;
+	background-color: #f091a4;
 }
 
 .monthSelector {
@@ -141,11 +142,11 @@
 }
 
 .card {
-	background: #25262b;
+	background: #0d0d0d;
 	border-radius: 12px;
 	padding: 1.5rem;
-	height: 200px;
-	border: 1px solid #2d2e32;
+	height: fit-content;
+	border: 1px solid #1a1a1a;
 	transition: all 0.2s ease;
 	overflow-y: scroll;
 }
@@ -156,8 +157,8 @@
 
 .card:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.3);
-	border-color: #4a5568;
+	box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.5);
+	border-color: #f5a9b8;
 }
 
 .cardDate {
@@ -175,14 +176,14 @@
 
 .memberItem {
 	padding: 0.75rem;
-	background: #2d2e32;
+	background: #1a1a1a;
 	border-radius: 8px;
 	font-size: 0.95rem;
 }
 
 .role {
 	font-weight: 600;
-	color: #a0aec0;
+	color: #f5a9b8;
 	margin-right: 0.5rem;
 }
 
@@ -191,7 +192,7 @@
 	display: flex;
 	justify-content: flex-end;
 	gap: 1.25rem;
-	border-top: 1px solid #2d2e32;
+	border-top: 1px solid #1a1a1a;
 }
 
 .calendarButton {
@@ -205,8 +206,8 @@
 /* Style the options when dropdown is open */
 .monthSelector option,
 .userSelect option {
-	background-color: #25262b;
-	color: #ffffff;
+	background-color: #0d0d0d;
+	color: #f5f5f5;
 	padding: 12px;
 }
 
@@ -272,13 +273,13 @@
 .unlockForm .buttonContainer .unlockButton {
 	padding: 0.75rem 1.5rem;
 	width: fit-content;
-	background-color: #4299e1;
+	background-color: #f5a9b8;
 	border-radius: 6px;
 	border: none;
 }
 
 .unlockForm .buttonContainer .unlockButton:hover {
-	background-color: #3182ce;
+	background-color: #f091a4;
 	transform: translateY(-1px);
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }

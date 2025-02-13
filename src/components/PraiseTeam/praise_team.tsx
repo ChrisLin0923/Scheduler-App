@@ -4,6 +4,8 @@ import { format, startOfMonth, endOfMonth, eachWeekOfInterval } from "date-fns";
 import AddMemberForm from "./AddMemberForm";
 import FloatingEdit from "./FloatingEdit";
 import { PraiseTeamService } from "../../../Backend/FirebaseServices";
+import { CalendarService } from "../../services/CalendarService";
+import type { CalendarEventDetails } from "../../services/CalendarService";
 
 interface MonthCardProps {
 	month: string;
@@ -11,12 +13,11 @@ interface MonthCardProps {
 	onCardClick: (month: string) => void;
 }
 
-interface PraiseTeamEditProps {
-	month: string;
-	members: {
-		role: string;
-		name: string;
-	}[];
+function capName(name: string): string {
+	return name
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
 }
 
 const MonthCard = ({ month, schedules, onCardClick }: MonthCardProps) => {
@@ -30,7 +31,7 @@ const MonthCard = ({ month, schedules, onCardClick }: MonthCardProps) => {
 					(member: { role: string; name: string }, index: number) => (
 						<div key={index} className={styles.memberItem}>
 							<span className={styles.role}>{member.role}:</span>
-							<span>{member.name}</span>
+							<span>{capName(member.name)}</span>
 						</div>
 					)
 				)}
@@ -71,26 +72,42 @@ const MONTH_RANGES = [
 export default function PraiseTeam() {
 	const CHURCH_ID = "162nd";
 	const TEAM_ID = "praise_team";
-
-	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedRange, setSelectedRange] = useState(getCurrentQuarter());
 	const [showNav, setShowNav] = useState(false);
 	const [showAddMemberForm, setShowAddMemberForm] = useState(false);
-	const [unlocked, setUnlocked] = useState(false);
+	const [unlocked, setUnlocked] = useState<boolean>(() => {
+		// Retrieve the value from sessionStorage or default to false
+		const saved = sessionStorage.getItem("unlocked");
+		return saved === "true"; // Convert string to boolean
+	});
 	const [showUnlockForm, setShowUnlockForm] = useState(false);
 	const [showEditCard, setShowEditCard] = useState(false);
 	const [editCardId, setEditCardId] = useState("");
 	const currentRange = MONTH_RANGES[selectedRange]; //index 0 - 3
 
-	const memberList = [
-		{ role: "Lead Singer", name: "Chris Lin" },
-		{ role: "Vocalist", name: "Chris Lin, John Lin" },
-		{ role: "Guitarist", name: "Chris Lin" },
-		{ role: "Bassist", name: "Chris Lin" },
-		{ role: "Drummer", name: "Chris Lin" },
-		{ role: "Pianist", name: "Chris Lin" },
-		{ role: "Custom", name: "Chris Lin" },
-	];
+	const [members, setMembers] = useState<String[]>([]);
+
+	useEffect(() => {
+		// Update sessionStorage whenever the unlocked state changes
+		sessionStorage.setItem("unlocked", JSON.stringify(unlocked));
+	}, [unlocked]);
+
+	useEffect(() => {
+		const fetchMembers = async () => {
+			try {
+				const allMembers = await PraiseTeamService.getAllMembers(
+					"162nd"
+				);
+
+				const memberNames = allMembers.map((member) => member.name);
+				setMembers(memberNames);
+			} catch (error) {
+				console.error("Error fetching members:", error);
+			}
+		};
+
+		fetchMembers();
+	}, []);
 
 	function getCurrentQuarter(): number {
 		const currentMonth = new Date().getMonth(); // 0-11
@@ -103,6 +120,7 @@ export default function PraiseTeam() {
 		const handleUnlock = () => {
 			if (password === import.meta.env.VITE_ADMIN_PASSWORD) {
 				setUnlocked(true);
+				sessionStorage.setItem("unlocked", "true");
 				setShowUnlockForm(false);
 			} else {
 				alert("Incorrect password");
@@ -110,70 +128,186 @@ export default function PraiseTeam() {
 		};
 
 		return (
-			<>
+			<div
+				className={styles.overlay}
+				onClick={() => setShowUnlockForm(false)}
+			>
 				<div
-					className={styles.overlay}
-					onClick={() => setShowUnlockForm(false)}
+					className={styles.unlockForm}
+					onClick={(e) => e.stopPropagation()}
 				>
-					<div className={styles.unlockForm}>
-						<h1>Unlock Editing Mode</h1>
-						<input
-							type='password'
-							placeholder='Enter password'
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							onKeyPress={(e) =>
-								e.key === "Enter" && handleUnlock()
-							}
-							autoFocus
-						/>
-						<div className={styles.buttonContainer}>
-							<button
-								className={styles.cancelButton}
-								onClick={() => setShowUnlockForm(false)}
-							>
-								Cancel
-							</button>
-							<button
-								className={styles.unlockButton}
-								onClick={handleUnlock}
-							>
-								Unlock
-							</button>
-						</div>
+					<h1>Unlock Editing Mode</h1>
+					<input
+						type='password'
+						placeholder='Enter password'
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						onKeyPress={(e) => e.key === "Enter" && handleUnlock()}
+						autoFocus
+					/>
+					<div className={styles.buttonContainer}>
+						<button
+							className={styles.cancelButton}
+							onClick={() => setShowUnlockForm(false)}
+						>
+							Cancel
+						</button>
+						<button
+							className={styles.unlockButton}
+							onClick={handleUnlock}
+						>
+							Unlock
+						</button>
 					</div>
 				</div>
-			</>
+			</div>
 		);
 	};
 
 	const [schedules, setSchedules] = useState<{ [key: string]: any }>({});
-	const [loading, setLoading] = useState(true);
+	const [, setLoading] = useState(true);
+	const fetchSchedules = async () => {
+		try {
+			if (unlocked) setUnlocked(true);
+			const data = await PraiseTeamService.getSchedules(
+				CHURCH_ID,
+				TEAM_ID
+			);
+			const schedulesMap = data.reduce(
+				(acc, schedule) => ({
+					...acc,
+					[schedule.id]: schedule,
+				}),
+				{}
+			);
+			setSchedules(schedulesMap);
+		} catch (error) {
+			console.error("Error fetching schedules:", error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	useEffect(() => {
-		const fetchSchedules = async () => {
-			try {
-				const data = await PraiseTeamService.getSchedules(
-					CHURCH_ID,
-					TEAM_ID
-				);
-				const schedulesMap = data.reduce(
-					(acc, schedule) => ({
-						...acc,
-						[schedule.id]: schedule,
-					}),
-					{}
-				);
-				setSchedules(schedulesMap);
-			} catch (error) {
-				console.error("Error fetching schedules:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
 		fetchSchedules();
 	}, []);
+
+	const [selectedMember, setSelectedMember] = useState("");
+
+	const handleCalendarAdd = async () => {
+		if (!selectedMember) {
+			alert("Please select a member first");
+			return;
+		}
+
+		try {
+			// Initialize the calendar service
+			await CalendarService.initClient();
+
+			// Filter schedules for selected member's events
+			const memberEvents = Object.entries(schedules).filter(
+				([_, schedule]) => {
+					const hasMember = schedule.members.some(
+						(m: any) =>
+							m.name.toString().toLowerCase() ===
+							selectedMember.toLowerCase()
+					);
+					console.log(
+						"Checking schedule:",
+						schedule.date,
+						"Has member:",
+						hasMember
+					);
+					return hasMember;
+				}
+			);
+
+			if (memberEvents.length === 0) {
+				console.log("No events found for member:", selectedMember);
+				alert("No scheduled events found for the selected member.");
+				return;
+			}
+
+			// Add each event to calendar
+			for (const [scheduleId, schedule] of memberEvents) {
+				console.log(
+					"Processing schedule:",
+					scheduleId,
+					"Details:",
+					schedule
+				);
+
+				// Parse the date from the schedule
+				const dateMatch = schedule.date?.match(/\((.*?)\)/);
+				if (!dateMatch) {
+					console.log("No date match found for schedule:", schedule);
+					continue;
+				}
+
+				const dateStr = dateMatch[1]; // e.g., "January 5"
+				const eventDate = new Date(
+					`${dateStr}, ${new Date().getFullYear()}`
+				);
+
+				console.log("Creating event for date:", eventDate);
+
+				const memberRole = schedule.members.find(
+					(m: any) =>
+						m.name.toString().toLowerCase() ===
+						selectedMember.toLowerCase()
+				)?.role;
+
+				console.log("Member role:", memberRole, "for date:", dateStr);
+
+				if (memberRole) {
+					// Set the time to 10 AM for the start
+					const startTime = new Date(eventDate);
+					startTime.setHours(10, 0, 0);
+
+					// Set the time to 12 PM for the end
+					const endTime = new Date(eventDate);
+					endTime.setHours(12, 0, 0);
+
+					const eventDetails: CalendarEventDetails = {
+						summary: `Church Service - ${memberRole}`,
+						description: `Serving as ${memberRole} at church`,
+						start: startTime,
+						end: endTime,
+						reminders: {
+							useDefault: false,
+							overrides: [
+								{
+									method: "email" as const,
+									minutes: 7 * 24 * 60,
+								}, // 7 days before
+								{
+									method: "popup" as const,
+									minutes: 7 * 24 * 60,
+								}, // 7 days before
+								{
+									method: "email" as const,
+									minutes: 2 * 24 * 60,
+								}, // 2 days before
+								{
+									method: "popup" as const,
+									minutes: 2 * 24 * 60,
+								}, // 2 days before
+							],
+						},
+					};
+
+					await CalendarService.addEventToCalendar(eventDetails);
+				} else {
+					console.log("No role found for member on date:", dateStr);
+				}
+			}
+
+			alert("Events have been added to your calendar!");
+		} catch (error) {
+			console.error("Error adding events to calendar:", error);
+			alert("Failed to add events to calendar. Please try again.");
+		}
+	};
 
 	return (
 		<>
@@ -185,13 +319,7 @@ export default function PraiseTeam() {
 					>
 						☰
 					</button>
-					<input
-						type='text'
-						placeholder='Search schedules...'
-						className={styles.searchBar}
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-					/>
+
 					<select
 						className={styles.monthSelector}
 						value={selectedRange}
@@ -256,11 +384,25 @@ export default function PraiseTeam() {
 				</div>
 
 				<div className={styles.footer}>
-					<select className={styles.userSelect}>
-						<option value=''>Chris Lin</option>
-						<option value='admin'>Admin View</option>
+					<select
+						className={styles.userSelect}
+						value={selectedMember}
+						onChange={(e) => setSelectedMember(e.target.value)}
+					>
+						<option value=''>Select member</option>
+						{members.map((member) => (
+							<option
+								key={member.toString()}
+								value={member.toString()}
+							>
+								{member}
+							</option>
+						))}
 					</select>
-					<button className={styles.calendarButton}>
+					<button
+						className={styles.calendarButton}
+						onClick={handleCalendarAdd}
+					>
 						📅 Add to Calendar
 					</button>
 				</div>
@@ -275,7 +417,10 @@ export default function PraiseTeam() {
 			{showEditCard && (
 				<FloatingEdit
 					show={showEditCard}
-					onClose={() => setShowEditCard(false)}
+					onClose={() => {
+						setShowEditCard(false);
+						fetchSchedules();
+					}}
 					teamType='162 Praise Team'
 					monthData={
 						schedules[editCardId] || {

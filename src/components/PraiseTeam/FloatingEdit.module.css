@@ -81,8 +81,9 @@
 }
 
 .memberSelect:focus {
-	border-color: #4299e1;
+	border-color: #f5a9b8;
 	outline: none;
+	box-shadow: 0 0 0 3px rgba(245, 169, 184, 0.1);
 }
 
 .footer {
@@ -110,12 +111,12 @@
 }
 
 .saveButton {
-	background-color: #4299e1;
-	color: white;
+	background-color: #f5a9b8;
+	color: #000000;
 }
 
 .saveButton:hover {
-	background-color: #3182ce;
+	background-color: #f091a4;
 }
 
 .cancelButton:hover {
