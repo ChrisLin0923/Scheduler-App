@@ -33,7 +33,7 @@ interface Conflict {
 	severity: "WARNING" | "ERROR";
 }
 
-const DEFAULT_ROLES = [
+const ALL_ROLES = [
 	{ role: "Lead Singer", name: "" },
 	{ role: "Vocalist", name: "" },
 	{ role: "Guitarist", name: "" },
@@ -51,16 +51,7 @@ const FloatingEdit = ({
 	const [availableMembers, setAvailableMembers] = useState<Member[]>([]);
 	const [selectedMembers, setSelectedMembers] = useState<{
 		[key: string]: string;
-	}>(
-		// Initialize with current assignments
-		monthData.members.reduce(
-			(acc, member) => ({
-				...acc,
-				[member.role]: member.name,
-			}),
-			{}
-		)
-	);
+	}>({});
 	const [conflicts, setConflicts] = useState<Conflict[]>([]);
 
 	useEffect(() => {
@@ -70,6 +61,15 @@ const FloatingEdit = ({
 		};
 		fetchMembers();
 	}, []);
+
+	// Initialize selectedMembers with current assignments
+	useEffect(() => {
+		const initialMembers: { [key: string]: string } = {};
+		monthData.members.forEach((member) => {
+			initialMembers[member.role] = member.name;
+		});
+		setSelectedMembers(initialMembers);
+	}, [monthData]);
 
 	const getMembersForRole = (role: string) => {
 		return availableMembers.filter((member) => {
@@ -134,9 +134,6 @@ const FloatingEdit = ({
 		}));
 	};
 
-	const members =
-		monthData.members?.length > 0 ? monthData.members : DEFAULT_ROLES;
-
 	if (!show) return null;
 
 	return (
@@ -150,21 +147,21 @@ const FloatingEdit = ({
 					</button>
 				</div>
 				<div className={styles.content}>
-					{members.map((member, index) => (
-						<div key={index} className={styles.memberRow}>
-							<h4>{member.role}</h4>
+					{ALL_ROLES.map((role) => (
+						<div key={role.role} className={styles.memberRow}>
+							<h4>{role.role}</h4>
 							<select
 								className={styles.memberSelect}
-								value={selectedMembers[member.role] || ""}
+								value={selectedMembers[role.role] || ""}
 								onChange={(e) =>
 									handleMemberSelect(
-										member.role,
+										role.role,
 										e.target.value
 									)
 								}
 							>
 								<option value=''>Select member</option>
-								{getMembersForRole(member.role).map(
+								{getMembersForRole(role.role).map(
 									(availableMember) => (
 										<option
 											key={availableMember.name}

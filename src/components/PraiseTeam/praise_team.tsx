@@ -28,12 +28,15 @@ const MonthCard = ({ month, schedules, onCardClick }: MonthCardProps) => {
 			<div className={styles.cardDate}>{month}</div>
 			<div className={styles.memberList}>
 				{schedule.members.map(
-					(member: { role: string; name: string }, index: number) => (
-						<div key={index} className={styles.memberItem}>
-							<span className={styles.role}>{member.role}:</span>
-							<span>{capName(member.name)}</span>
-						</div>
-					)
+					(member: { role: string; name: string }, index: number) =>
+						member.name && (
+							<div key={index} className={styles.memberItem}>
+								<span className={styles.role}>
+									{member.role}:
+								</span>
+								<span>{capName(member.name)}</span>
+							</div>
+						)
 				)}
 			</div>
 		</div>

@@ -170,7 +170,7 @@
 	height: fit-content;
 	border: 1px solid #1a1a1a;
 	transition: all 0.2s ease;
-	overflow-y: hidden;
+	overflow-y: scroll;
 	scrollbar-base-color: #f091a4;
 }
 

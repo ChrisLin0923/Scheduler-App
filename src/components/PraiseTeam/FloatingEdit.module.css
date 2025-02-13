@@ -8,8 +8,8 @@
 	border-radius: 12px;
 	width: 90%;
 	max-width: 500px;
-	max-height: 85vh;
-	overflow-y: auto;
+	max-height: 90vh;
+	overflow-y: scroll;
 	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 	z-index: 1000;
 	color: white;
