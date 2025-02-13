@@ -84,8 +84,9 @@
 	font-size: 0.95rem;
 	font-weight: 500;
 	cursor: pointer;
+	justify-content: center;
 	transition: all 0.2s ease;
-	width: 150px;
+	width: 9.5rem;
 }
 
 .unlockButton {
@@ -165,10 +166,12 @@
 	background: #0d0d0d;
 	border-radius: 12px;
 	padding: 1.5rem;
+	margin: 2px;
 	height: fit-content;
 	border: 1px solid #1a1a1a;
 	transition: all 0.2s ease;
-	overflow-y: scroll;
+	overflow-y: hidden;
+	scrollbar-base-color: #f091a4;
 }
 
 .card p {
