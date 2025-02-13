@@ -5,6 +5,8 @@
 
 body {
 	margin: 0;
+	height: 100vh;
+	width: 100vw;
 	background-color: #1a1b1e;
 	color: #ffffff;
 	scrollbar-width: thin;
