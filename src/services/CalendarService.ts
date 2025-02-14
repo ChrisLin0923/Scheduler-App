@@ -28,20 +28,10 @@ export class CalendarService {
 
 	static async initClient() {
 		if (this.isInitialized) {
-			console.log("Already initialized");
 			return true;
 		}
 
 		try {
-			console.log("Starting Google Calendar API initialization...");
-
-			// Log API key and client ID
-			console.log("Using API Key:", import.meta.env.VITE_GOOGLE_API_KEY);
-			console.log(
-				"Using Client ID:",
-				import.meta.env.VITE_GOOGLE_CLIENT_ID
-			);
-
 			// Load Google Identity Services script
 			await new Promise<void>((resolve, reject) => {
 				const script = document.createElement("script");
@@ -77,8 +67,6 @@ export class CalendarService {
 				],
 			});
 
-			console.log("GAPI client initialized");
-
 			// Initialize token client
 			this.tokenClient = window.google.accounts.oauth2.initTokenClient({
 				client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
@@ -89,10 +77,8 @@ export class CalendarService {
 			});
 
 			this.isInitialized = true;
-			console.log("Initialization complete");
 			return true;
 		} catch (error) {
-			console.error("Error initializing Google Calendar API:", error);
 			throw error; // Rethrow the error for further handling
 		}
 	}
@@ -131,17 +117,13 @@ export class CalendarService {
 
 	static async addEventToCalendar(eventDetails: CalendarEventDetails) {
 		try {
-			console.log("Starting calendar event creation...");
-
 			// Ensure API is initialized
 			if (!this.isInitialized) {
-				console.log("Initializing client...");
 				await this.initClient();
 			}
 
 			// Get access token only if we don't have a valid one
 			if (!this.hasValidToken) {
-				console.log("Requesting access token...");
 				await this.getAccessToken();
 			}
 
@@ -161,8 +143,6 @@ export class CalendarService {
 				},
 			};
 
-			console.log("Creating event:", event);
-
 			const request = await window.gapi.client.calendar.events.insert({
 				calendarId: "primary",
 				resource: event,
@@ -171,7 +151,6 @@ export class CalendarService {
 			console.log("Calendar API response:", request);
 
 			if (request.status === 200) {
-				console.log("Event created successfully:", request.result);
 				return request.result;
 			} else {
 				this.hasValidToken = false; // Reset token state on error
