@@ -2,10 +2,16 @@
 	box-sizing: border-box;
 }
 
+body {
+	height: 100%;
+	margin: 0;
+}
+
 .container {
-	max-height: 100vh;
+	height: 100vh;
 	width: 100vw;
 	overflow-x: hidden;
+	margin: 0;
 	overflow-y: auto;
 	padding: 1rem 2rem;
 	display: flex;
@@ -49,6 +55,7 @@
 }
 
 .searchBar,
+.filterSelect,
 .monthSelector,
 .userSelect {
 	appearance: none;
@@ -116,6 +123,7 @@
 .mainContent {
 	flex: 1;
 	overflow-y: auto;
+	height: 100%;
 	padding: 1rem 0;
 	margin: 1rem -1rem;
 	scrollbar-width: thin;

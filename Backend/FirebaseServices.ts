@@ -16,16 +16,22 @@ interface Member {
 }
 
 export class PraiseTeamService {
-	static async getAllMembers(churchId: string = "162nd"): Promise<Member[]> {
-		const membersRef = collection(db, `churches/${churchId}/members`);
-		const querySnapshot = await getDocs(membersRef);
-		return querySnapshot.docs.map((doc) => ({
-			...doc.data(),
-			id: doc.id,
-		})) as unknown as Member[];
+	static async getAllMembers(churchId: string): Promise<Member[]> {
+		try {
+			const membersRef = collection(db, `churches/${churchId}/members`);
+			const querySnapshot = await getDocs(membersRef);
+
+			return querySnapshot.docs.map((doc) => ({
+				...doc.data(),
+				id: doc.id,
+			})) as unknown as Member[];
+		} catch (error) {
+			console.error("Error retrieving members:", error);
+			throw error; // Rethrow the error for further handling
+		}
 	}
 
-	static async addMember(member: any, churchId: string = "162nd") {
+	static async addMember(member: any, churchId: string) {
 		const exists = await this.checkIfMemberExists(member.name, churchId);
 		if (exists) {
 			throw new Error("Member already exists");
@@ -48,10 +54,10 @@ export class PraiseTeamService {
 		return !querySnapshot.empty;
 	}
 
-	static async getSchedules(churchId: string, teamId: string) {
+	static async getSchedules(churchId: string, department: string) {
 		const schedulesRef = collection(
 			db,
-			`churches/${churchId}/teams/${teamId}/schedules`
+			`churches/${churchId}/teams/${department}/schedules`
 		);
 		const querySnapshot = await getDocs(schedulesRef);
 		return querySnapshot.docs.map((doc) => ({
@@ -62,12 +68,12 @@ export class PraiseTeamService {
 
 	static async updateSchedule(
 		churchId: string,
-		teamId: string,
+		department: string,
 		scheduleData: any
 	) {
 		const scheduleRef = doc(
 			db,
-			`churches/${churchId}/teams/${teamId}/schedules/${scheduleData.date}`
+			`churches/${churchId}/teams/${department}/schedules/${scheduleData.date}`
 		);
 		await setDoc(scheduleRef, scheduleData, { merge: true });
 	}

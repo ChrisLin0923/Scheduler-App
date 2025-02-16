@@ -19,7 +19,7 @@ interface AddMemberFormProps {
 	onSubmit: () => Promise<void>;
 }
 
-const ROLES = [
+const PRAISE_ROLES = [
 	"Lead Singer",
 	"Vocalist",
 	"Guitarist",
@@ -28,7 +28,11 @@ const ROLES = [
 	"Pianist",
 ];
 
-const SERVICE_GROUPS = ["162 Praise Team", "162 General Team", "162 Tech Team"];
+const GENERAL_ROLES = ["Offering", "Doxology", "Scripture Reading", "Usher"];
+
+const AV_ROLES = ["PPT", "Audio/Video"];
+
+const SERVICE_GROUPS = ["162nd Chinese", "162nd English", "137th Chinese"];
 
 const AddMemberForm: React.FC<AddMemberFormProps> = ({
 	isVisible,
@@ -43,6 +47,9 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 	});
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 	const [memberExists, setMemberExists] = useState(false);
+	const [department, setDepartment] = useState("praise_team");
+	const [roles, setRoles] = useState(PRAISE_ROLES);
+	const [selectedTeam, setSelectedTeam] = useState("praise");
 
 	const handleRoleToggle = (role: string) => {
 		setFormData((prev) => ({
@@ -60,6 +67,7 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 				? prev.service_group.filter((g) => g !== group)
 				: [...prev.service_group, group],
 		}));
+		console.log(formData.service_group);
 	};
 
 	const handleDateAdd = (date: Date | null) => {
@@ -76,17 +84,28 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
-			await PraiseTeamService.addMember(
-				{
-					name: formData.name,
-					role: formData.role,
-					service_group: formData.service_group,
-					unavailable_dates: formData.unavailable_dates?.map((date) =>
-						format(date, "yyyy-MM-dd")
-					),
-				},
-				"162nd"
-			);
+			for (let i = 0; i < formData.service_group.length; i++) {
+				let location = "";
+				if (formData.service_group[i] === "162nd Chinese")
+					location = "162nd";
+				else if (formData.service_group[i] === "162nd English")
+					location = "162nd En";
+				else location = "137th";
+
+				console.log(location);
+
+				await PraiseTeamService.addMember(
+					{
+						name: formData.name,
+						role: formData.role,
+						service_group: formData.service_group,
+						unavailable_dates: formData.unavailable_dates?.map(
+							(date) => format(date, "yyyy-MM-dd")
+						),
+					},
+					location
+				);
+			}
 
 			onSubmit();
 			setFormData({
@@ -94,7 +113,7 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 				role: [],
 				service_group: [],
 				unavailable_dates: [],
-			});
+			}); //reset form data
 			onClose();
 		} catch (error) {
 			console.error("Error adding member:", error);
@@ -151,18 +170,74 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 					</div>
 
 					<div className={styles.formGroup}>
+						<div className={styles.sliderContainer}>
+							<input
+								type='radio'
+								id='praiseTeam'
+								name='team'
+								value='praise'
+								checked={selectedTeam === "praise"}
+								onChange={() => {
+									setSelectedTeam("praise");
+									setDepartment("praise_team");
+									setRoles(PRAISE_ROLES);
+								}}
+							/>
+							<label htmlFor='praiseTeam'>Praise Team</label>
+
+							<input
+								type='radio'
+								id='audioVideo'
+								name='team'
+								value='audio'
+								checked={selectedTeam === "audio"}
+								onChange={() => {
+									setSelectedTeam("audio");
+									setDepartment("audio_video");
+									setRoles(AV_ROLES);
+								}}
+							/>
+							<label htmlFor='audioVideo'>Audio/Video</label>
+
+							<input
+								type='radio'
+								id='general'
+								name='team'
+								value='general'
+								checked={selectedTeam === "general"}
+								onChange={() => {
+									setSelectedTeam("general");
+									setDepartment("general");
+									setRoles(GENERAL_ROLES);
+								}}
+							/>
+							<label htmlFor='general'>General</label>
+						</div>
+					</div>
+
+					<div className={styles.formGroup}>
 						<label>Roles</label>
-						<div className={styles.checkboxGroup}>
-							{ROLES.map((role) => (
-								<label key={role} className={styles.checkbox}>
-									<input
-										type='checkbox'
-										checked={formData.role.includes(role)}
-										onChange={() => handleRoleToggle(role)}
-									/>
-									{role}
-								</label>
-							))}
+						<div className={styles.rolesContainer}>
+							{" "}
+							<div className={styles.checkboxGroup}>
+								{roles.map((role) => (
+									<label
+										key={role}
+										className={styles.checkbox}
+									>
+										<input
+											type='checkbox'
+											checked={formData.role.includes(
+												role
+											)}
+											onChange={() =>
+												handleRoleToggle(role)
+											}
+										/>
+										{role}
+									</label>
+								))}
+							</div>
 						</div>
 					</div>
 

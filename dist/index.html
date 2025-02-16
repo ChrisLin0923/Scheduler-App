@@ -16,19 +16,5 @@
 	</head>
 	<body>
 		<div id="root"></div>
-		<script>
-			const initGoogleApi = async () => {
-				try {
-					console.log(
-						"Initializing Google API with key:",
-						process.env.GOOGLE_API_KEY
-					);
-					await CalendarService.initClient();
-					setIsInitialized(true);
-				} catch (error) {
-					console.error("Failed to initialize Google API:", error);
-				}
-			};
-		</script>
 	</body>
 </html>

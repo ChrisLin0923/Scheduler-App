@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import styles from "./praise_team.module.css";
 import { format, startOfMonth, endOfMonth, eachWeekOfInterval } from "date-fns";
-import AddMemberForm from "./AddMemberForm";
-import FloatingEdit from "./FloatingEdit";
+import AddMemberForm from "../FloatingEditForms/AddMemberForm";
+import FloatingEdit from "../FloatingEditForms/FloatingEdit";
 import { PraiseTeamService } from "../../../Backend/FirebaseServices";
 import { CalendarService } from "../../services/CalendarService";
 import type { CalendarEventDetails } from "../../services/CalendarService";
@@ -28,15 +28,47 @@ const MonthCard = ({ month, schedules, onCardClick }: MonthCardProps) => {
 			<div className={styles.cardDate}>{month}</div>
 			<div className={styles.memberList}>
 				{schedule.members.map(
-					(member: { role: string; name: string }, index: number) =>
-						member.name && (
-							<div key={index} className={styles.memberItem}>
-								<span className={styles.role}>
-									{member.role}:
-								</span>
-								<span>{capName(member.name)}</span>
-							</div>
-						)
+					(member: { role: string; name: string }, index: number) => {
+						if (member.name) {
+							// Check if the role is "Vocalist" and find any "Vocalist 2"
+							if (member.role === "Vocalist") {
+								const vocalist2 = schedule.members.find(
+									(m: { role: string; name: any }) =>
+										m.role === "Vocalist 2" && m.name
+								);
+								return (
+									<div
+										key={index}
+										className={styles.memberItem}
+									>
+										<span className={styles.role}>
+											{member.role}:
+										</span>
+										<span>{capName(member.name)}</span>
+										{vocalist2 && (
+											<span>
+												{" "}
+												& {capName(vocalist2.name)}
+											</span>
+										)}
+									</div>
+								);
+							}
+							// Skip rendering "Vocalist 2" if "Vocalist" is already rendered
+							if (member.role === "Vocalist 2") {
+								return null;
+							}
+							return (
+								<div key={index} className={styles.memberItem}>
+									<span className={styles.role}>
+										{member.role}:
+									</span>
+									<span>{capName(member.name)}</span>
+								</div>
+							);
+						}
+						return null;
+					}
 				)}
 			</div>
 		</div>
@@ -73,10 +105,11 @@ const MONTH_RANGES = [
 ];
 
 export default function PraiseTeam() {
-	const CHURCH_ID = "162nd";
-	const TEAM_ID = "praise_team";
+	const [church, setChurch] = useState("162nd");
+	const [department, setDepartment] = useState("praise_team");
+
 	const [selectedRange, setSelectedRange] = useState(getCurrentQuarter());
-	const [showNav, setShowNav] = useState(false);
+	// const [showNav, setShowNav] = useState(false);
 	const [showAddMemberForm, setShowAddMemberForm] = useState(false);
 	const [unlocked, setUnlocked] = useState<boolean>(() => {
 		// Retrieve the value from sessionStorage or default to false
@@ -99,7 +132,7 @@ export default function PraiseTeam() {
 		const fetchMembers = async () => {
 			try {
 				const allMembers = await PraiseTeamService.getAllMembers(
-					"162nd"
+					church
 				);
 
 				const memberNames = allMembers.map((member) => member.name);
@@ -110,7 +143,7 @@ export default function PraiseTeam() {
 		};
 
 		fetchMembers();
-	}, []);
+	}, [church, department]); //Tracking the state of the church and department variables, if they change, we will refetch.
 
 	function getCurrentQuarter(): number {
 		const currentMonth = new Date().getMonth(); // 0-11
@@ -173,8 +206,8 @@ export default function PraiseTeam() {
 		try {
 			if (unlocked) setUnlocked(true);
 			const data = await PraiseTeamService.getSchedules(
-				CHURCH_ID,
-				TEAM_ID
+				church,
+				department
 			);
 			const schedulesMap = data.reduce(
 				(acc, schedule) => ({
@@ -193,7 +226,7 @@ export default function PraiseTeam() {
 
 	useEffect(() => {
 		fetchSchedules();
-	}, []);
+	}, [church, department]);
 
 	const [selectedMember, setSelectedMember] = useState("");
 
@@ -316,13 +349,28 @@ export default function PraiseTeam() {
 		<>
 			<div className={styles.container}>
 				<div className={styles.header}>
-					<button
-						className={styles.navToggle}
-						onClick={() => setShowNav(!showNav)}
+					<select
+						className={styles.filterSelect}
+						onChange={(e) => {
+							setChurch(String(e.target.value));
+						}}
 					>
-						☰
-					</button>
+						<option value='162nd'> 162nd Chinese</option>
+						<option value='162nd En'> 162nd English</option>
+						<option value='137th'>137th Church</option>
+					</select>
 
+					<select
+						className={styles.filterSelect}
+						onChange={(e) => {
+							setDepartment(String(e.target.value));
+							console.log(department);
+						}}
+					>
+						<option value='praise_team'>Praise Team </option>
+						<option value='audio_video'> Audio/Video </option>
+						<option value='general'> General </option>
+					</select>
 					<select
 						className={styles.monthSelector}
 						value={selectedRange}
@@ -424,7 +472,8 @@ export default function PraiseTeam() {
 						setShowEditCard(false);
 						fetchSchedules();
 					}}
-					teamType='162 Praise Team'
+					church={church}
+					department={department}
 					monthData={
 						schedules[editCardId] || {
 							date: editCardId,

@@ -9,12 +9,8 @@ export default function App() {
 	useEffect(() => {
 		const initGoogleApi = async () => {
 			try {
-				console.log(
-					"Starting Google API initialization from App component"
-				);
 				await CalendarService.initClient();
 				setIsInitialized(true);
-				console.log("Google API initialization complete");
 			} catch (error) {
 				console.error("Failed to initialize Google API:", error);
 				// Retry initialization after a delay if it fails

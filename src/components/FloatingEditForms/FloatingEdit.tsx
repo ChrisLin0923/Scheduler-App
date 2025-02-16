@@ -11,7 +11,8 @@ interface Member {
 interface FloatingEditProps {
 	show: boolean;
 	onClose: () => void;
-	teamType: string;
+	church: string;
+	department: string;
 	monthData: {
 		date: string;
 		members: {
@@ -33,19 +34,32 @@ interface Conflict {
 	severity: "WARNING" | "ERROR";
 }
 
-const ALL_ROLES = [
+const PRAISE_ROLES = [
 	{ role: "Lead Singer", name: "" },
 	{ role: "Vocalist", name: "" },
+	{ role: "Vocalist 2", name: "" },
 	{ role: "Guitarist", name: "" },
 	{ role: "Bassist", name: "" },
 	{ role: "Drummer", name: "" },
 	{ role: "Pianist", name: "" },
 ];
+const AV_ROLES = [
+	{ role: "PPT", name: "" },
+	{ role: "Audio/Video", name: "" },
+];
+
+const GENERAL_ROLES = [
+	{ role: "Offering", name: "" },
+	{ role: "Usher", name: "" },
+	{ role: "Doxology", name: "" },
+	{ role: "Scripture Reading", name: "" },
+];
 
 const FloatingEdit = ({
 	show,
 	onClose,
-	teamType,
+	church,
+	department,
 	monthData,
 }: FloatingEditProps) => {
 	const [availableMembers, setAvailableMembers] = useState<Member[]>([]);
@@ -53,14 +67,22 @@ const FloatingEdit = ({
 		[key: string]: string;
 	}>({});
 	const [conflicts, setConflicts] = useState<Conflict[]>([]);
+	const [roles, setRoles] = useState(PRAISE_ROLES);
 
 	useEffect(() => {
 		const fetchMembers = async () => {
-			const members = await PraiseTeamService.getAllMembers("162nd");
+			const members = await PraiseTeamService.getAllMembers(church);
 			setAvailableMembers(members);
 		};
+
 		fetchMembers();
 	}, []);
+
+	useEffect(() => {
+		if (department === "audio_video") setRoles(AV_ROLES);
+		else if (department === "general") setRoles(GENERAL_ROLES);
+		else setRoles(PRAISE_ROLES);
+	}, [department]); //When department changes, we will reset the roles to be rendered.
 
 	// Initialize selectedMembers with current assignments
 	useEffect(() => {
@@ -72,20 +94,21 @@ const FloatingEdit = ({
 	}, [monthData]);
 
 	const getMembersForRole = (role: string) => {
+		// Normalize the role to "Vocalist" if it's "Vocalist 2"
+		const normalizedRole = role === "Vocalist 2" ? "Vocalist" : role;
+
 		return availableMembers.filter((member) => {
 			const hasRole = member.role.some(
-				(r) => r.toLowerCase() === role.toLowerCase()
+				(r) => r.toLowerCase() === normalizedRole.toLowerCase()
 			);
-			const hasServiceGroup = member.service_group.some(
-				(sg) => sg.toLowerCase() === teamType.toLowerCase()
-			);
-			return hasRole && hasServiceGroup;
+
+			return hasRole;
 		});
 	};
 
 	const handleSave = async () => {
 		try {
-			await PraiseTeamService.updateSchedule("162nd", "praise_team", {
+			await PraiseTeamService.updateSchedule(church, department, {
 				date: monthData.date,
 				members: Object.entries(selectedMembers).map(
 					([role, name]) => ({
@@ -95,6 +118,7 @@ const FloatingEdit = ({
 				),
 				updatedAt: new Date().toISOString(),
 			});
+
 			onClose();
 		} catch (error) {
 			console.error("Error saving schedule:", error);
@@ -108,6 +132,7 @@ const FloatingEdit = ({
 				...prev,
 				[role]: name,
 			}));
+
 			return;
 		}
 
@@ -147,7 +172,7 @@ const FloatingEdit = ({
 					</button>
 				</div>
 				<div className={styles.content}>
-					{ALL_ROLES.map((role) => (
+					{roles.map((role) => (
 						<div key={role.role} className={styles.memberRow}>
 							<h4>{role.role}</h4>
 							<select
