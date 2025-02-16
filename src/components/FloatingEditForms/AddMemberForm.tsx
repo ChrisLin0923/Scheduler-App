@@ -47,7 +47,7 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 	});
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 	const [memberExists, setMemberExists] = useState(false);
-	const [department, setDepartment] = useState("praise_team");
+
 	const [roles, setRoles] = useState(PRAISE_ROLES);
 	const [selectedTeam, setSelectedTeam] = useState("praise");
 
@@ -91,8 +91,6 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 				else if (formData.service_group[i] === "162nd English")
 					location = "162nd En";
 				else location = "137th";
-
-				console.log(location);
 
 				await PraiseTeamService.addMember(
 					{
@@ -179,7 +177,7 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 								checked={selectedTeam === "praise"}
 								onChange={() => {
 									setSelectedTeam("praise");
-									setDepartment("praise_team");
+
 									setRoles(PRAISE_ROLES);
 								}}
 							/>
@@ -193,7 +191,7 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 								checked={selectedTeam === "audio"}
 								onChange={() => {
 									setSelectedTeam("audio");
-									setDepartment("audio_video");
+
 									setRoles(AV_ROLES);
 								}}
 							/>
@@ -207,7 +205,7 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 								checked={selectedTeam === "general"}
 								onChange={() => {
 									setSelectedTeam("general");
-									setDepartment("general");
+
 									setRoles(GENERAL_ROLES);
 								}}
 							/>
