@@ -349,60 +349,66 @@ export default function PraiseTeam() {
 		<>
 			<div className={styles.container}>
 				<div className={styles.header}>
-					<select
-						className={styles.filterSelect}
-						onChange={(e) => {
-							setChurch(String(e.target.value));
-						}}
-					>
-						<option value='162nd'> 162nd Chinese</option>
-						<option value='162nd En'> 162nd English</option>
-						<option value='137th'>137th Church</option>
-					</select>
+					<div className={styles.filterContainer}>
+						<select
+							className={styles.filterSelect}
+							onChange={(e) => {
+								setChurch(String(e.target.value));
+							}}
+						>
+							<option value='162nd'> 162nd Chinese</option>
+							<option value='162nd En'> 162nd English</option>
+							<option value='137th'>137th Church</option>
+						</select>
 
-					<select
-						className={styles.filterSelect}
-						onChange={(e) => {
-							setDepartment(String(e.target.value));
-							console.log(department);
-						}}
-					>
-						<option value='praise_team'>Praise Team </option>
-						<option value='audio_video'> Audio/Video </option>
-						<option value='general'> General </option>
-					</select>
-					<select
-						className={styles.monthSelector}
-						value={selectedRange}
-						onChange={(e) =>
-							setSelectedRange(Number(e.target.value))
-						}
-					>
-						{MONTH_RANGES.map((range, index) => (
-							<option key={index} value={index}>
-								{range[0]} → {range[2]}
-							</option>
-						))}
-					</select>
-					<button
-						className={styles.unlockButton}
-						onClick={() => {
-							if (unlocked) {
-								setUnlocked(false);
-							} else {
-								setShowUnlockForm(true);
+						<select
+							className={styles.filterSelect}
+							onChange={(e) => {
+								setDepartment(String(e.target.value));
+							}}
+						>
+							<option value='praise_team'>Praise Team </option>
+							<option value='audio_video'> Audio/Video </option>
+							<option value='general'> General </option>
+						</select>
+						<select
+							className={styles.monthSelector}
+							value={selectedRange}
+							onChange={(e) =>
+								setSelectedRange(Number(e.target.value))
 							}
-						}}
-					>
-						{unlocked ? "🔒 Lock" : "🔓 Unlock"}
-					</button>
-					<button
-						className={styles.addButton}
-						onClick={() => setShowAddMemberForm(!showAddMemberForm)}
-						disabled={!unlocked}
-					>
-						+ Add New
-					</button>
+						>
+							{MONTH_RANGES.map((range, index) => (
+								<option key={index} value={index}>
+									{range[0]} → {range[2]}
+								</option>
+							))}
+						</select>
+					</div>
+
+					<div className={styles.buttonContainer}>
+						<button
+							className={styles.unlockButton}
+							onClick={() => {
+								if (unlocked) {
+									setUnlocked(false);
+								} else {
+									setShowUnlockForm(true);
+								}
+							}}
+						>
+							{unlocked ? "🔒 Lock" : "🔓 Unlock"}
+						</button>
+						<button
+							className={styles.addButton}
+							onClick={() =>
+								setShowAddMemberForm(!showAddMemberForm)
+							}
+							disabled={!unlocked}
+						>
+							➕ Add Member
+						</button>
+					</div>
 				</div>
 
 				<div className={styles.mainContent}>

@@ -21,10 +21,41 @@ body {
 	-webkit-overflow-scrolling: touch;
 }
 
-@media (max-width: 450px) {
+.header .filterContainer {
+	display: flex;
+	justify-content: space-evenly;
+	gap: 0.5rem;
+}
+
+@media (max-width: 549px) {
 	.container .cardGrid {
 		grid-template-columns: repeat(1, 1fr);
 		gap: 1.5rem;
+	}
+
+	.header .filterContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.header {
+		gap: 0.2rem;
+		flex-wrap: wrap;
+		justify-content: space-between;
+	}
+}
+@media (min-width: 550px) and (max-width: 1100px) {
+	.container .cardGrid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.5rem;
+	}
+
+	.header .filterContainer {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 0.5rem;
 	}
 
 	.header {
@@ -36,6 +67,7 @@ body {
 
 .header {
 	display: flex;
+	justify-content: space-between;
 	gap: 1.25rem;
 	align-items: center;
 	padding: 0.5rem 0;
@@ -178,7 +210,7 @@ body {
 	height: fit-content;
 	border: 1px solid #1a1a1a;
 	transition: all 0.2s ease;
-	overflow-y: scroll;
+	overflow-y: hidden;
 	scrollbar-base-color: #f091a4;
 }
 

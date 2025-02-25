@@ -121,11 +121,24 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
 
 	const debouncedCheck = useCallback(
 		debounce(async (name: string) => {
+			var exists = false;
 			if (name.trim()) {
-				const exists = await PraiseTeamService.checkIfMemberExists(
-					name,
-					"162nd"
-				);
+				for (let i = 0; i < formData.service_group.length; i++) {
+					let location = "";
+					if (formData.service_group[i] === "162nd Chinese")
+						location = "162nd";
+					else if (formData.service_group[i] === "162nd English")
+						location = "162nd En";
+					else location = "137th";
+
+					exists =
+						exists ||
+						(await PraiseTeamService.checkIfMemberExists(
+							name,
+							location
+						));
+				}
+
 				setMemberExists(exists);
 			} else {
 				setMemberExists(false);
